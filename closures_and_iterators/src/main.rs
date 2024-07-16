@@ -35,7 +35,12 @@ impl Inventory {
 
 }
 
+fn run_closure<F:FnOnce() +'static>(f:F){
+	f();
+}
+
 fn main(){
+    
     let store = Inventory{
         shirts: vec![ShirtColor::Blue,ShirtColor::Blue,ShirtColor::Red]
     };
@@ -54,12 +59,18 @@ fn main(){
     //println!("After calling closure: {:?}", list); -> this line will give an error as the list is mutably borrowed and no other borrows are supported now.
     borrows_mutably();
     println!("After calling closure: {:?}", list);
+    run_closure(move || {
+        print!("moved a variable inside closure");
+        list.push(6)
+    });
 
     //moving to another thread so the variable is not dropped while the new thread is still executing
     let list = vec![1, 2, 3];
     println!("Before defining closure: {:?}", list);
-    thread::spawn(move || println!("From thread: {:?}", list))
+    thread::spawn(move || println!("moving list inside, From thread: {:?}", list))
         .join()
         .unwrap();
 
+
 }
+
